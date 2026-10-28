@@ -1110,7 +1110,22 @@ function receive(t){
 $('recvBtn').onclick=function(){receive($('recv').value)};
 /* ---- Bluetooth (Google Nearby) - só no app Android ---- */
 var NB=null,btMode='',btSeed=null,btBox=null,btDevs={},btMsgEl=null;
-try{if(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()&&Capacitor.registerPlugin)NB=Capacitor.registerPlugin('Nearby')}catch(e){NB=null}
+try{
+  var CAP=window.Capacitor;
+  if(CAP&&CAP.isNativePlatform&&CAP.isNativePlatform()){
+    if(CAP.registerPlugin)NB=CAP.registerPlugin('Nearby');
+    else if(CAP.nativePromise&&CAP.addListener){
+      /* app sem a biblioteca empacotada: fala direto com a ponte nativa do Capacitor */
+      NB={
+        receive:function(){return CAP.nativePromise('Nearby','receive',{})},
+        discover:function(){return CAP.nativePromise('Nearby','discover',{})},
+        send:function(o){return CAP.nativePromise('Nearby','send',o)},
+        stop:function(){return CAP.nativePromise('Nearby','stop',{})},
+        addListener:function(ev,cb){return CAP.addListener('Nearby',ev,cb)}
+      };
+    }
+  }
+}catch(e){NB=null}
 function btErr(e){
   var m=String(e&&(e.message||e)||'');
   if(m.indexOf('permissao_negada')>=0)return 'Sem permissão. Libere "Dispositivos próximos" (ou Localização) para o app nas configurações do Android.';
