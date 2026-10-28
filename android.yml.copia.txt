@@ -1,0 +1,84 @@
+name: Build Android (APK e AAB)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'android/**'
+      - 'package.json'
+      - 'capacitor.config.json'
+      - '.github/workflows/android.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Copiar o jogo para o app
+        run: npm run sync
+
+      - name: Preparar chave de assinatura (se existir nos secrets)
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.keystore"
+            echo "KEYSTORE_PATH=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
+            echo "SIGNED=1" >> "$GITHUB_ENV"
+            echo "Chave encontrada: vai gerar APK e AAB assinados."
+          else
+            echo "Sem chave nos secrets: vai gerar só o APK de teste (debug)."
+          fi
+
+      - name: Compilar
+        working-directory: android
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          if [ "$SIGNED" = "1" ]; then
+            ./gradlew assembleDebug assembleRelease bundleRelease --stacktrace
+          else
+            ./gradlew assembleDebug --stacktrace
+          fi
+
+      - name: Guardar APK de teste (debug)
+        uses: actions/upload-artifact@v4
+        with:
+          name: sementeira-apk-debug
+          path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: ignore
+
+      - name: Guardar APK assinado (release)
+        uses: actions/upload-artifact@v4
+        with:
+          name: sementeira-apk-release
+          path: android/app/build/outputs/apk/release/*.apk
+          if-no-files-found: ignore
+
+      - name: Guardar AAB para a Play Store
+        uses: actions/upload-artifact@v4
+        with:
+          name: sementeira-aab
+          path: android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: ignore

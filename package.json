@@ -1,0 +1,17 @@
+{
+  "name": "sementeira",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sementeira: jogo de cuidar de plantas",
+  "scripts": {
+    "build:web": "node scripts/build-web.js",
+    "sync": "npm run build:web && cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/core": "^8.5.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.3"
+  }
+}
