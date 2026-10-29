@@ -156,7 +156,7 @@ main>section{animation:fin .28s ease-out}
 </style>
 </head>
 <body>
-<header class="top"><b>🌿 Sementeira</b><span id="lvl"></span><span id="rs"></span><span id="sc"></span><button id="snd" class="x" aria-label="Som ambiente" aria-pressed="false" style="font-size:18px">🔇</button></header>
+<header class="top"><b>🌿 Sementeira</b><span id="lvl"></span><span id="rs"></span><span id="sc"></span><button id="nf" class="x" aria-label="Avisos" aria-pressed="false" style="font-size:18px" hidden>🔔</button><button id="snd" class="x" aria-label="Som ambiente" aria-pressed="false" style="font-size:18px">🔇</button></header>
 <main>
 <section id="t-jardim">
   <div id="sky" class="sky sol"><span id="wi" class="wi">☀️</span><p id="weather"></p></div>
@@ -212,7 +212,7 @@ if(!st.plots){st.plots=[st.plant||null];delete st.plant}
 if(!st.soils)st.soils=st.plots.map(function(){return 2});
 if(!st.gardeners)st.gardeners=[];
 if(!st.herb)st.herb={};if(!st.stats)st.stats={adults:0,cross:0};if(!st.claimed)st.claimed={};
-function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}try{nfQueue()}catch(e){}}
 function $(i){return document.getElementById(i)}
 var SOILS=[{n:'Árido',f:.45},{n:'Seco',f:.7},{n:'Normal',f:1},{n:'Úmido',f:1.4},{n:'Encharcado',f:2}],TF={flor:1,erva:.7,arvore:1.5,cacto:2.2,suculenta:1.8,samambaia:.6};
 function sf(i){var v=st.soils[i];return SOILS[v==null?2:v]}
@@ -1110,12 +1110,28 @@ function receive(t){
 $('recvBtn').onclick=function(){receive($('recv').value)};
 /* ---- Bluetooth (Google Nearby) - só no app Android ---- */
 var NB=null,btMode='',btSeed=null,btBox=null,btDevs={},btMsgEl=null;
-try{if(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()&&Capacitor.registerPlugin)NB=Capacitor.registerPlugin('Nearby')}catch(e){NB=null}
+try{
+  var CAP=window.Capacitor;
+  if(CAP&&CAP.isNativePlatform&&CAP.isNativePlatform()){
+    if(CAP.registerPlugin)NB=CAP.registerPlugin('Nearby');
+    else if(CAP.nativePromise&&CAP.addListener){
+      /* app sem a biblioteca empacotada: fala direto com a ponte nativa do Capacitor */
+      NB={
+        receive:function(){return CAP.nativePromise('Nearby','receive',{})},
+        discover:function(){return CAP.nativePromise('Nearby','discover',{})},
+        send:function(o){return CAP.nativePromise('Nearby','send',o)},
+        stop:function(){return CAP.nativePromise('Nearby','stop',{})},
+        addListener:function(ev,cb){return CAP.addListener('Nearby',ev,cb)}
+      };
+    }
+  }
+}catch(e){NB=null}
 function btErr(e){
   var m=String(e&&(e.message||e)||'');
   if(m.indexOf('permissao_negada')>=0)return 'Sem permissão. Libere "Dispositivos próximos" (ou Localização) para o app nas configurações do Android.';
   if(m.indexOf('conexao_recusada')>=0||m.indexOf('desconectou')>=0)return 'A conexão não foi concluída. Confira se o outro celular está em "Receber por Bluetooth" e tente de novo.';
   if(m.indexOf('envio_falhou')>=0)return 'O envio falhou no meio. Tente de novo.';
+  if(m.indexOf('MISSING_PERMISSION')>=0)return 'Falta uma permissão. Nas configurações do Android, abra Apps > Sementeira > Permissões e libere "Localização" e "Dispositivos próximos". Depois tente de novo.';
   return 'Não foi possível iniciar. Ligue o Bluetooth e a Localização do celular e tente de novo. ('+m.slice(0,80)+')';
 }
 function btSet(el,t,warn){if(el){el.textContent=t;el.classList.remove('warn','mute');el.classList.add(warn?'warn':'mute')}}
@@ -1307,6 +1323,59 @@ st.plots.forEach(function(p){if(p)fixSeed(p.seed||(p.plant&&p.plant.seed))});
 Object.keys(st.herb).forEach(function(k){fixSeed(st.herb[k])});
 save();
 st.plots.forEach(function(p){if(p&&!p.locked&&p.seed&&(p.adult||p.stage==4))herbAdd(p.seed)});
+
+/* ---- avisos (notificações locais, só no app) ---- */
+var LN=null,nfT=0,nfAsked=false;
+try{
+  var CP=window.Capacitor;
+  if(CP&&CP.isNativePlatform&&CP.isNativePlatform()&&CP.nativePromise){
+    LN={
+      check:function(){return CP.nativePromise('LocalNotifications','checkPermissions',{})},
+      ask:function(){return CP.nativePromise('LocalNotifications','requestPermissions',{})},
+      pending:function(){return CP.nativePromise('LocalNotifications','getPending',{})},
+      cancel:function(o){return CP.nativePromise('LocalNotifications','cancel',o)},
+      schedule:function(o){return CP.nativePromise('LocalNotifications','schedule',o)}
+    };
+  }
+}catch(e){LN=null}
+if(st.notif==null)st.notif=true;
+function nfShow(){var b=$('nf');if(!b)return;b.hidden=!LN;b.textContent=st.notif?'🔔':'🔕';b.setAttribute('aria-pressed',st.notif?'true':'false')}
+function nfWake(t){return isNight(t)?nextB(t):t}
+function nfBuild(){
+  var n=Date.now(),L=[],id=0;
+  st.plots.forEach(function(p,i){
+    if(!p||p.locked||!p.seed||tended(i))return;
+    var q=cfg(i),el=eff(p.last,n),nm=p.seed.n||names[p.seed.t],wait=Math.max(0,q.cool-el);
+    if(wait>0&&p.stage>0)L.push({id:100+i,at:nfWake(n+realFor(wait)),title:'💧 '+nm+' está pronta para regar',body:'Abra o jogo e regue o canteiro '+(i+1)+'.'});
+    var warn=Math.max(0,q.limit-36e5-el);
+    if(warn>=0&&el<q.limit)L.push({id:200+i,at:nfWake(n+realFor(warn)),title:'⚠️ '+nm+' está com sede',body:'Falta cerca de 1 hora para a planta murchar. Regue logo!'});
+  });
+  return L.filter(function(x){return x.at>n+5000}).map(function(x){return {id:x.id,title:x.title,body:x.body,schedule:{at:new Date(x.at).toISOString(),allowWhileIdle:true}}});
+}
+function nfRun(){
+  if(!LN)return;
+  LN.pending().then(function(r){
+    var ids=(r&&r.notifications||[]).map(function(x){return {id:x.id}});
+    return ids.length?LN.cancel({notifications:ids}):0;
+  }).then(function(){
+    if(!st.notif)return;
+    return LN.check().then(function(p){
+      if(p&&p.display==='granted')return true;
+      if(nfAsked)return false;
+      nfAsked=true;return LN.ask().then(function(r){return r&&r.display==='granted'});
+    });
+  }).then(function(ok){
+    if(!ok||!st.notif)return;
+    var L=nfBuild();
+    L.push({id:1,title:'🌱 Missões do dia',body:'Novas missões diárias esperando por você.',schedule:{on:{hour:10,minute:0},allowWhileIdle:true}});
+    return LN.schedule({notifications:L});
+  }).catch(function(){});
+}
+function nfQueue(){if(!LN)return;clearTimeout(nfT);nfT=setTimeout(nfRun,1500)}
+$('nf').onclick=function(){st.notif=!st.notif;save();nfShow();say(st.notif?'🔔 Avisos ligados.':'🔕 Avisos desligados.');nfRun()};
+nfShow();
+document.addEventListener('visibilitychange',function(){if(document.hidden&&LN)nfRun()});
+nfQueue();
 check();render();
 setInterval(function(){check();tend();renderPlots();renderItems();renderHerb();renderLab();renderMissions();renderQuests()},1000);
 })();
