@@ -1350,7 +1350,7 @@ function nfBuild(){
     var warn=Math.max(0,q.limit-36e5-el);
     if(warn>=0&&el<q.limit)L.push({id:200+i,at:nfWake(n+realFor(warn)),title:'⚠️ '+nm+' está com sede',body:'Falta cerca de 1 hora para a planta murchar. Regue logo!'});
   });
-  return L.filter(function(x){return x.at>n+5000}).map(function(x){return {id:x.id,title:x.title,body:x.body,schedule:{at:new Date(x.at).toISOString(),allowWhileIdle:true}}});
+  return L.filter(function(x){return x.at>n+5000}).map(function(x){return {id:x.id,title:x.title,body:x.body,isExactNotification:false,schedule:{at:new Date(x.at).toISOString(),allowWhileIdle:true}}});
 }
 function nfRun(){
   if(!LN)return;
@@ -1367,7 +1367,7 @@ function nfRun(){
   }).then(function(ok){
     if(!ok||!st.notif)return;
     var L=nfBuild();
-    L.push({id:1,title:'🌱 Missões do dia',body:'Novas missões diárias esperando por você.',schedule:{on:{hour:10,minute:0},allowWhileIdle:true}});
+    L.push({id:1,title:'🌱 Missões do dia',body:'Novas missões diárias esperando por você.',isExactNotification:false,schedule:{on:{hour:10,minute:0},allowWhileIdle:true}});
     return LN.schedule({notifications:L});
   }).catch(function(){});
 }
