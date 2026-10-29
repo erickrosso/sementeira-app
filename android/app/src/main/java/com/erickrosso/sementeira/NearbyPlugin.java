@@ -40,7 +40,8 @@ import java.nio.charset.StandardCharsets;
 @CapacitorPlugin(
     name = "Nearby",
     permissions = {
-        @Permission(alias = "loc", strings = { Manifest.permission.ACCESS_FINE_LOCATION }),
+        @Permission(alias = "coarse", strings = { Manifest.permission.ACCESS_COARSE_LOCATION }),
+        @Permission(alias = "fine", strings = { Manifest.permission.ACCESS_FINE_LOCATION }),
         @Permission(
             alias = "bt",
             strings = {
@@ -80,20 +81,29 @@ public class NearbyPlugin extends Plugin {
 
     /* ---------- permissões (variam conforme a versão do Android) ---------- */
 
+    /**
+     * O Nearby exige localização em todas as versões do Android (no 12+ é preciso pedir
+     * "aproximada" e "precisa" juntas, senão o Android ignora o pedido).
+     */
     private String[] neededAliases() {
         if (Build.VERSION.SDK_INT >= 33) {
-            return new String[] { "bt", "wifi" };
+            return new String[] { "bt", "wifi", "coarse", "fine" };
         } else if (Build.VERSION.SDK_INT >= 31) {
-            return new String[] { "bt", "loc" };
+            return new String[] { "bt", "coarse", "fine" };
         }
-        return new String[] { "loc" };
+        return new String[] { "coarse", "fine" };
     }
 
+    /** Basta a localização aproximada concedida (o usuário pode negar a precisa). */
     private boolean hasPermissions() {
-        for (String a : neededAliases()) {
-            if (getPermissionState(a) != PermissionState.GRANTED) {
-                return false;
-            }
+        if (getPermissionState("coarse") != PermissionState.GRANTED) {
+            return false;
+        }
+        if (Build.VERSION.SDK_INT >= 31 && getPermissionState("bt") != PermissionState.GRANTED) {
+            return false;
+        }
+        if (Build.VERSION.SDK_INT >= 33 && getPermissionState("wifi") != PermissionState.GRANTED) {
+            return false;
         }
         return true;
     }

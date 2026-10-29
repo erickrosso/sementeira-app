@@ -1131,6 +1131,7 @@ function btErr(e){
   if(m.indexOf('permissao_negada')>=0)return 'Sem permissão. Libere "Dispositivos próximos" (ou Localização) para o app nas configurações do Android.';
   if(m.indexOf('conexao_recusada')>=0||m.indexOf('desconectou')>=0)return 'A conexão não foi concluída. Confira se o outro celular está em "Receber por Bluetooth" e tente de novo.';
   if(m.indexOf('envio_falhou')>=0)return 'O envio falhou no meio. Tente de novo.';
+  if(m.indexOf('MISSING_PERMISSION')>=0)return 'Falta uma permissão. Nas configurações do Android, abra Apps > Sementeira > Permissões e libere "Localização" e "Dispositivos próximos". Depois tente de novo.';
   return 'Não foi possível iniciar. Ligue o Bluetooth e a Localização do celular e tente de novo. ('+m.slice(0,80)+')';
 }
 function btSet(el,t,warn){if(el){el.textContent=t;el.classList.remove('warn','mute');el.classList.add(warn?'warn':'mute')}}
