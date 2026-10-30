@@ -48,6 +48,15 @@ label.btn input{position:absolute;inset:0;width:100%;height:100%;opacity:0;curso
 .sky.seca{background:linear-gradient(#f6d27a,#f3e6c3)}
 .sky.geada{background:linear-gradient(#cfe9f5,#eaf6fb)}
 .sky.geada::after{content:"❄ ✦ ❄ ✦ ❄";position:absolute;right:12px;top:6px;opacity:.6;letter-spacing:6px;animation:tw 3s ease-in-out infinite}
+#help{position:fixed;inset:0;z-index:30;background:var(--bg);color:var(--ink);overflow:auto;padding:14px 16px calc(24px + env(safe-area-inset-bottom,0px))}
+#help[hidden]{display:none}
+#help .hh{display:flex;justify-content:space-between;align-items:center;gap:10px;position:sticky;top:-14px;background:var(--bg);padding:10px 0;z-index:1}
+#help h1{font-size:20px;margin:0}
+#help details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:10px}
+#help summary{font-weight:700;cursor:pointer;font-size:16px}
+#help dl{margin:10px 0 0}#help dt{font-weight:700;margin-top:10px}#help dd{margin:2px 0 0;color:var(--mute);font-size:14px;line-height:1.45}
+#help p{margin:8px 0 0;font-size:14px;line-height:1.45}
+#nfStat{font-size:13px;color:var(--mute);margin-top:8px}
 @keyframes rain{to{background-position:-12px 40px}}
 @keyframes tw{50%{opacity:.2}}
 #status{margin:8px 2px 0;min-height:22px}
@@ -156,7 +165,7 @@ main>section{animation:fin .28s ease-out}
 </style>
 </head>
 <body>
-<header class="top"><b>🌿 Sementeira</b><span id="lvl"></span><span id="rs"></span><span id="sc"></span><button id="nf" class="x" aria-label="Avisos" aria-pressed="false" style="font-size:18px" hidden>🔔</button><button id="snd" class="x" aria-label="Som ambiente" aria-pressed="false" style="font-size:18px">🔇</button></header>
+<header class="top"><b>🌿 Sementeira</b><span id="lvl"></span><span id="rs"></span><span id="sc"></span><button id="hp" class="x" aria-label="Como jogar" style="font-size:18px">❓</button><button id="nf" class="x" aria-label="Avisos" aria-pressed="false" style="font-size:18px" hidden>🔔</button><button id="snd" class="x" aria-label="Som ambiente" aria-pressed="false" style="font-size:18px">🔇</button></header>
 <main>
 <section id="t-jardim">
   <div id="sky" class="sky sol"><span id="wi" class="wi">☀️</span><p id="weather"></p></div>
@@ -194,7 +203,7 @@ main>section{animation:fin .28s ease-out}
 </section>
 <section id="t-herb" hidden><h2 style="margin-top:6px">Herbário</h2><div id="herb"></div></section>
 <section id="t-missoes" hidden><h2 style="margin-top:6px">Diárias <span class="qt" id="qdt"></span></h2><div class="card" id="qd"></div><h2>Semanais <span class="qt" id="qwt"></span></h2><div class="card" id="qw"></div><h2>Conquistas</h2><div class="card" id="missions"></div></section>
-<p class="ver">Sementeira 1.0</p>
+<p class="ver">Sementeira 1.1</p>
 </main>
 <nav class="tabs" aria-label="Seções">
 <button data-t="jardim"><i>🪴</i>Jardim</button>
@@ -202,6 +211,87 @@ main>section{animation:fin .28s ease-out}
 <button data-t="herb"><i>📖</i>Herbário</button>
 <button data-t="missoes"><i>🎯</i>Missões<span id="badgeM" class="badge" hidden></span></button>
 </nav>
+<div id="help" hidden role="dialog" aria-label="Como jogar">
+<div class="hh"><h1>❓ Como jogar</h1><button id="hpx">Fechar</button></div>
+<p>Fotografe plantas de verdade, plante as sementes que elas geram e cuide do seu jardim. Toque em cada título abaixo para ver os detalhes.</p>
+
+<details open><summary>🎯 Objetivo e ideia geral</summary>
+<p>Cada planta passa por 4 estágios até ficar adulta. Para crescer, ela precisa ser regada na hora certa: nem cedo demais (ainda está esperando), nem tarde demais (a planta murcha). Plantas adultas dão colheitas (moedas e itens) e, a cada ciclo de rega, ajudam a abrir novos canteiros. Quanto mais canteiros, mais difícil fica.</p>
+</details>
+
+<details><summary>📌 Barra do topo</summary><dl>
+<dt>Nível N</dt><dd>Seu nível é o número de canteiros abertos. Sobe quando você ganha um canteiro novo.</dd>
+<dt>🪙 Moedas</dt><dd>Dinheiro do jogo. Vem das colheitas e das missões. Serve para comprar na Loja e contratar jardineiros.</dd>
+<dt>🌱 Sementes</dt><dd>Quantas sementes você tem guardadas, prontas para plantar.</dd>
+<dt>❓ Como jogar</dt><dd>Abre esta tela.</dd>
+<dt>🔔 / 🔕 Avisos</dt><dd>Liga ou desliga as notificações. Só aparece no app do celular.</dd>
+<dt>🔊 / 🔇 Som</dt><dd>Liga ou desliga o som ambiente, que muda conforme o clima.</dd>
+</dl></details>
+
+<details><summary>🪴 Aba Jardim</summary><dl>
+<dt>Céu e clima</dt><dd>Mostra o clima atual e quando ele muda (a cada 3 horas). ☀️ Sol: normal. 🌧️ Chuva: as plantas aguentam 3 horas a mais sem água. 🏜️ Seca: aguentam menos (exceto cacto e suculenta). ❄️ Geada: flores, samambaias e suculentas sofrem. À noite (22h às 6h) a água dura o dobro do tempo.</dd>
+<dt>Faixa de status</dt><dd>Mostra avisos do jogo (colheita, canteiro novo, planta murchou) e quantos ciclos de planta adulta faltam para ganhar ou liberar um canteiro.</dd>
+<dt>Regar todos (N)</dt><dd>Rega de uma vez todos os canteiros que já estão prontos. O número entre parênteses é quantos estão prontos.</dd>
+<dt>Cartão do canteiro</dt><dd>Mostra o nome da planta, o número do canteiro e o tipo de solo (árido, seco, normal, úmido, encharcado). Solo seco pede rega mais frequente; úmido, menos.</dd>
+<dt>Barra de água</dt><dd>Verde: tranquila. Amarela: já está na hora de regar. Vermelha: está com sede e vai murchar logo.</dd>
+<dt>4 tracinhos (estágios)</dt><dd>Quantos estágios a planta já cresceu. Com os 4 acesos ela é adulta.</dd>
+<dt>Botão Regar</dt><dd>Quando está liberado, rega a planta e ela cresce um estágio. Se está esperando, mostra o tempo que falta. Se a planta já é adulta, a rega conta como ciclo e pode render colheita.</dd>
+<dt>💧 no botão Regar</dt><dd>Se você tem uma Gota, pode regar sem esperar o tempo (a Gota é gasta).</dd>
+<dt>🌿 Adubo</dt><dd>Faz a planta crescer um estágio na hora, sem esperar. Fica apagado se você não tem adubo ou se a planta já é adulta.</dd>
+<dt>🧑‍🌾 Jardineiro</dt><dd>Coloca (ou tira) um jardineiro no canteiro. Ele rega sozinho. Essas regas não contam como ciclo. Fica apagado se você ainda não tem jardineiro.</dd>
+<dt>✕ Arrancar</dt><dd>Tira a planta do canteiro. Se ela já tinha sido adulta alguma vez, a semente volta para você. Se nunca foi adulta, o botão vira um aviso vermelho "Perder?" e a semente só se perde se você tocar de novo para confirmar.</dd>
+<dt>Canteiro bloqueado 🔒</dt><dd>Se uma planta murcha a partir do canteiro 2, o canteiro fica bloqueado e a semente fica guardada. Para liberar, é preciso completar ciclos de rega no canteiro 1.</dd>
+<dt>Planta que murcha</dt><dd>No canteiro 1 ela volta ao estágio zero. Sempre regue antes de a barra ficar vermelha, ou use um Tônico.</dd>
+</dl></details>
+
+<details><summary>🧑‍🌾 Jardineiros, 🎒 Itens e 🛒 Loja</summary><dl>
+<dt>Jardineiros</dt><dd>O primeiro é grátis no nível 5. Os seguintes custam moedas. Toque no 🧑‍🌾 de um canteiro para colocá-lo lá.</dd>
+<dt>🌿 Adubo</dt><dd>Faz a planta crescer um estágio (botão 🌿 do canteiro).</dd>
+<dt>💧 Gota</dt><dd>Rega sem esperar o tempo (no botão Regar).</dd>
+<dt>🌸 Pólen</dt><dd>Usado no Cruzamento no lugar de um ciclo de rega.</dd>
+<dt>🧪 Tônico</dt><dd>Salva sozinho uma planta que ia murchar.</dd>
+<dt>Loja</dt><dd>Compre Adubo e Sementes aleatórias com suas moedas.</dd>
+<dt>Colheitas</dt><dd>Plantas adultas, ao serem regadas, podem dar moedas e itens. Flor dá pólen; erva dá tônico; cacto e suculenta dão gotas; árvores e samambaias dão adubo; na geada, às vezes aparece um cristal de gelo com moedas extras.</dd>
+</dl></details>
+
+<details><summary>🌱 Aba Sementes</summary><dl>
+<dt>📷 Tirar foto</dt><dd>Fotografe uma planta. O app identifica a espécie (com a ajuda do Pl@ntNet, precisa de internet) e cria uma semente parecida com ela.</dd>
+<dt>Plantar</dt><dd>Coloca a semente no primeiro canteiro vazio. Fica apagado se todos estão ocupados.</dd>
+<dt>Enviar</dt><dd>Gera um código para mandar a semente a um amigo. Você continua com a sua. No app do celular também aparece o envio por Bluetooth.</dd>
+<dt>📡 Enviar por Bluetooth</dt><dd>Escolha o celular do amigo na lista. Ele precisa estar na aba Sementes, tocando em "Receber por Bluetooth". Deixe Bluetooth e Localização ligados nos dois celulares.</dd>
+<dt>Receber semente</dt><dd>Cole o código que o amigo mandou e toque em Receber. Cada código só vale uma vez.</dd>
+<dt>📡 Receber por Bluetooth</dt><dd>Deixa seu celular visível para receber a semente de quem estiver por perto.</dd>
+<dt>Semente ✦ híbrida</dt><dd>Semente que veio de um cruzamento.</dd>
+</dl></details>
+
+<details><summary>🧬 Cruzamento</summary>
+<p>Junte duas plantas adultas do mesmo tipo para criar uma semente híbrida com as cores misturadas. Escolha uma planta em cada lista e toque para cruzar. Cada planta precisa de um ciclo de rega novo desde o último cruzamento, ou você gasta 🌸 Pólen no lugar. Não cruzam plantas de tipos diferentes, nem plantas que já chegaram ao limite de cores. O resultado é uma semente nova na sua lista.</p>
+</details>
+
+<details><summary>📖 Aba Herbário</summary>
+<p>É o seu álbum de espécies. Cada planta que chega à fase adulta é registrada aqui, com estrelas de raridade (★). Os quadros com "?" são espécies que você ainda não descobriu.</p>
+</details>
+
+<details><summary>🎯 Aba Missões</summary><dl>
+<dt>Diárias</dt><dd>3 missões que renovam todo dia. Dão moedas ao serem concluídas.</dd>
+<dt>Semanais</dt><dd>2 missões que renovam toda semana, com recompensa maior.</dd>
+<dt>Conquistas</dt><dd>Metas de longo prazo (como levar plantas à fase adulta). Toque para coletar quando estiverem prontas.</dd>
+<dt>Número vermelho na aba</dt><dd>Quantas missões já estão prontas para você coletar.</dd>
+</dl></details>
+
+<details id="hpAvisos"><summary>🔔 Avisos (notificações)</summary>
+<p>O app avisa quando uma planta está pronta para regar, quando ela está com sede (cerca de 1 hora antes de murchar) e lembra das missões do dia às 10h. Não avisa entre 22h e 6h. Canteiros com jardineiro não geram aviso.</p>
+<p>Se os avisos não chegam: 1) Aceite a permissão de notificações quando o app pedir. 2) Em Configurações do Android, abra Apps > Sementeira e verifique Notificações e Bateria (escolha "Sem restrições"). 3) Em celulares Xiaomi, ative também "Início automático" para o app. 4) Toque no botão de teste abaixo e feche o app.</p>
+<p id="nfStat"></p>
+<div class="row" style="margin-top:10px"><button id="nfTest" class="ghost">Enviar aviso de teste (10 s)</button></div>
+</details>
+
+<details><summary>📜 Regras importantes</summary><dl>
+<dt>Ganhar canteiro</dt><dd>Quando uma planta adulta completa o número de ciclos pedido (aparece na faixa de status), você ganha um novo canteiro e uma semente. A cada nível, pede um ciclo a mais e o intervalo de rega aumenta aos poucos.</dd>
+<dt>Tipos de planta</dt><dd>Cada tipo tem seu ritmo: samambaia e erva pedem rega mais frequente; árvore, cacto e suculenta, menos.</dd>
+<dt>Seu progresso</dt><dd>Fica salvo no próprio celular. Se desinstalar o app ou limpar os dados, o jogo recomeça.</dd>
+</dl></details>
+</div>
 <script>
 (function(){
 var TEST=false;
@@ -1325,7 +1415,7 @@ save();
 st.plots.forEach(function(p){if(p&&!p.locked&&p.seed&&(p.adult||p.stage==4))herbAdd(p.seed)});
 
 /* ---- avisos (notificações locais, só no app) ---- */
-var LN=null,nfT=0,nfAsked=false;
+var LN=null,nfT=0,nfAsked=false,nfPerm='',nfLast='';
 try{
   var CP=window.Capacitor;
   if(CP&&CP.isNativePlatform&&CP.isNativePlatform()&&CP.nativePromise){
@@ -1334,48 +1424,86 @@ try{
       ask:function(){return CP.nativePromise('LocalNotifications','requestPermissions',{})},
       pending:function(){return CP.nativePromise('LocalNotifications','getPending',{})},
       cancel:function(o){return CP.nativePromise('LocalNotifications','cancel',o)},
-      schedule:function(o){return CP.nativePromise('LocalNotifications','schedule',o)}
+      schedule:function(o){return CP.nativePromise('LocalNotifications','schedule',o)},
+      channel:function(o){return CP.nativePromise('LocalNotifications','createChannel',o)}
     };
   }
 }catch(e){LN=null}
 if(st.notif==null)st.notif=true;
+var NCH='sementeira_avisos';
 function nfShow(){var b=$('nf');if(!b)return;b.hidden=!LN;b.textContent=st.notif?'🔔':'🔕';b.setAttribute('aria-pressed',st.notif?'true':'false')}
 function nfWake(t){return isNight(t)?nextB(t):t}
 function nfBuild(){
-  var n=Date.now(),L=[],id=0;
+  var n=Date.now(),L=[];
   st.plots.forEach(function(p,i){
     if(!p||p.locked||!p.seed||tended(i))return;
     var q=cfg(i),el=eff(p.last,n),nm=p.seed.n||names[p.seed.t],wait=Math.max(0,q.cool-el);
     if(wait>0&&p.stage>0)L.push({id:100+i,at:nfWake(n+realFor(wait)),title:'💧 '+nm+' está pronta para regar',body:'Abra o jogo e regue o canteiro '+(i+1)+'.'});
     var warn=Math.max(0,q.limit-36e5-el);
-    if(warn>=0&&el<q.limit)L.push({id:200+i,at:nfWake(n+realFor(warn)),title:'⚠️ '+nm+' está com sede',body:'Falta cerca de 1 hora para a planta murchar. Regue logo!'});
+    if(el<q.limit)L.push({id:200+i,at:nfWake(n+realFor(warn)),title:'⚠️ '+nm+' está com sede',body:'Falta cerca de 1 hora para a planta murchar. Regue logo!'});
   });
-  return L.filter(function(x){return x.at>n+5000}).map(function(x){return {id:x.id,title:x.title,body:x.body,isExactNotification:false,schedule:{at:new Date(x.at).toISOString(),allowWhileIdle:true}}});
+  return L.filter(function(x){return x.at>n+5000}).map(function(x){return nfItem(x.id,x.title,x.body,{at:new Date(x.at).toISOString(),allowWhileIdle:true})});
+}
+function nfItem(id,title,body,sch){return {id:id,title:title,body:body,channelId:NCH,isExactNotification:false,schedule:sch}}
+function nfGo(){
+  /* tudo numa tacada só (sem esperar respostas), para funcionar mesmo quando o app está indo para o fundo */
+  var L=nfBuild(),keep={},stale=[],k;
+  L.forEach(function(x){keep[x.id]=1});
+  for(k=0;k<60;k++){if(!keep[100+k])stale.push({id:100+k});if(!keep[200+k])stale.push({id:200+k})}
+  LN.cancel({notifications:stale}).catch(function(){});
+  L.push(nfItem(1,'🌱 Missões do dia','Novas missões diárias esperando por você.',{on:{hour:10,minute:0},allowWhileIdle:true}));
+  return LN.schedule({notifications:L}).then(function(){nfLast='ok'}).catch(function(e){nfLast='erro: '+String(e&&(e.message||e)).slice(0,90)});
 }
 function nfRun(){
   if(!LN)return;
-  LN.pending().then(function(r){
-    var ids=(r&&r.notifications||[]).map(function(x){return {id:x.id}});
-    return ids.length?LN.cancel({notifications:ids}):0;
-  }).then(function(){
-    if(!st.notif)return;
-    return LN.check().then(function(p){
-      if(p&&p.display==='granted')return true;
-      if(nfAsked)return false;
-      nfAsked=true;return LN.ask().then(function(r){return r&&r.display==='granted'});
-    });
-  }).then(function(ok){
-    if(!ok||!st.notif)return;
-    var L=nfBuild();
-    L.push({id:1,title:'🌱 Missões do dia',body:'Novas missões diárias esperando por você.',isExactNotification:false,schedule:{on:{hour:10,minute:0},allowWhileIdle:true}});
-    return LN.schedule({notifications:L});
-  }).catch(function(){});
+  if(!st.notif){var c=[];for(var k=0;k<60;k++){c.push({id:100+k});c.push({id:200+k})}c.push({id:1});LN.cancel({notifications:c}).catch(function(){});return}
+  if(nfPerm==='granted'){nfGo();return}
+  LN.check().then(function(p){
+    nfPerm=p&&p.display||'';
+    if(nfPerm==='granted'||nfAsked)return;
+    nfAsked=true;return LN.ask().then(function(r){nfPerm=r&&r.display||''});
+  }).then(function(){if(nfPerm==='granted')return nfGo()}).catch(function(e){nfLast='erro: '+String(e&&(e.message||e)).slice(0,90)});
 }
 function nfQueue(){if(!LN)return;clearTimeout(nfT);nfT=setTimeout(nfRun,1500)}
+function nfStatus(){
+  var el=$('nfStat');if(!el)return;
+  if(!LN){el.textContent='Os avisos só funcionam no app do celular.';return}
+  el.textContent='Verificando...';
+  LN.check().then(function(p){
+    nfPerm=p&&p.display||'';
+    return LN.pending().then(function(r){
+      var n=(r&&r.notifications||[]).length;
+      el.textContent='Permissão: '+(nfPerm==='granted'?'liberada':nfPerm==='denied'?'NEGADA (libere em Configurações > Apps > Sementeira > Notificações)':'ainda não pedida')+' · Avisos: '+(st.notif?'ligados':'desligados')+' · Agendados: '+n+(nfLast&&nfLast!=='ok'?' · '+nfLast:'');
+    });
+  }).catch(function(e){el.textContent='Não consegui verificar: '+String(e&&(e.message||e)).slice(0,90)});
+}
+function nfTest(){
+  var el=$('nfStat');
+  if(!LN){el.textContent='Os avisos só funcionam no app do celular.';return}
+  function go(){
+    LN.schedule({notifications:[nfItem(2,'🌱 Sementeira','Teste: os avisos estão funcionando!',{at:new Date(Date.now()+10000).toISOString(),allowWhileIdle:true})]})
+      .then(function(){el.textContent='Aviso de teste agendado. Feche o app agora e espere 10 segundos.'})
+      .catch(function(e){el.textContent='Erro ao agendar: '+String(e&&(e.message||e)).slice(0,120)});
+  }
+  LN.check().then(function(p){
+    nfPerm=p&&p.display||'';
+    if(nfPerm==='granted')return go();
+    return LN.ask().then(function(r){nfPerm=r&&r.display||'';if(nfPerm==='granted')go();else el.textContent='Permissão negada. Libere em Configurações > Apps > Sementeira > Notificações.'});
+  }).catch(function(e){el.textContent='Erro: '+String(e&&(e.message||e)).slice(0,120)});
+}
 $('nf').onclick=function(){st.notif=!st.notif;save();nfShow();say(st.notif?'🔔 Avisos ligados.':'🔕 Avisos desligados.');nfRun()};
 nfShow();
+if(LN)LN.channel({id:NCH,name:'Avisos do jardim',description:'Plantas prontas para regar, com sede e missões',importance:4,visibility:1,vibration:true}).catch(function(){});
+$('nfTest').onclick=nfTest;
 document.addEventListener('visibilitychange',function(){if(document.hidden&&LN)nfRun()});
 nfQueue();
+/* ---- como jogar ---- */
+function helpOpen(){$('help').hidden=false;$('help').scrollTop=0;nfStatus();st.helpSeen=1;save()}
+function helpClose(){$('help').hidden=true}
+$('hp').onclick=helpOpen;$('hpx').onclick=helpClose;
+document.addEventListener('keydown',function(e){if(e.key==='Escape')helpClose()});
+$('nf').addEventListener('contextmenu',function(e){e.preventDefault();helpOpen();$('hpAvisos').open=true});
+if(!st.helpSeen)setTimeout(helpOpen,600);
 check();render();
 setInterval(function(){check();tend();renderPlots();renderItems();renderHerb();renderLab();renderMissions();renderQuests()},1000);
 })();
