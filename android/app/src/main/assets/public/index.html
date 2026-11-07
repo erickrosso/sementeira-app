@@ -203,7 +203,7 @@ main>section{animation:fin .28s ease-out}
 </section>
 <section id="t-herb" hidden><h2 style="margin-top:6px">Herbário</h2><div id="herb"></div></section>
 <section id="t-missoes" hidden><h2 style="margin-top:6px">Diárias <span class="qt" id="qdt"></span></h2><div class="card" id="qd"></div><h2>Semanais <span class="qt" id="qwt"></span></h2><div class="card" id="qw"></div><h2>Conquistas</h2><div class="card" id="missions"></div></section>
-<p class="ver">Sementeira 1.1</p>
+<p class="ver">Sementeira 1.3</p>
 </main>
 <nav class="tabs" aria-label="Seções">
 <button data-t="jardim"><i>🪴</i>Jardim</button>
@@ -238,7 +238,7 @@ main>section{animation:fin .28s ease-out}
 <dt>Botão Regar</dt><dd>Quando está liberado, rega a planta e ela cresce um estágio. Se está esperando, mostra o tempo que falta. Se a planta já é adulta, a rega conta como ciclo e pode render colheita.</dd>
 <dt>💧 no botão Regar</dt><dd>Se você tem uma Gota, pode regar sem esperar o tempo (a Gota é gasta).</dd>
 <dt>🌿 Adubo</dt><dd>Faz a planta crescer um estágio na hora, sem esperar. Fica apagado se você não tem adubo ou se a planta já é adulta.</dd>
-<dt>🧑‍🌾 Jardineiro</dt><dd>Coloca (ou tira) um jardineiro no canteiro. Ele rega sozinho. Essas regas não contam como ciclo. Fica apagado se você ainda não tem jardineiro.</dd>
+<dt>🧑‍🌾 Jardineiro</dt><dd>Coloca (ou tira) um jardineiro no canteiro. Ele rega sozinho, e as regas dele contam como ciclos (liberam canteiros bloqueados do canteiro 1 e geram colheitas). Fica apagado se você ainda não tem jardineiro.</dd>
 <dt>✕ Arrancar</dt><dd>Tira a planta do canteiro. Se ela já tinha sido adulta alguma vez, a semente volta para você. Se nunca foi adulta, o botão vira um aviso vermelho "Perder?" e a semente só se perde se você tocar de novo para confirmar.</dd>
 <dt>Canteiro bloqueado 🔒</dt><dd>Se uma planta murcha a partir do canteiro 2, o canteiro fica bloqueado e a semente fica guardada. Para liberar, é preciso completar ciclos de rega no canteiro 1.</dd>
 <dt>Planta que murcha</dt><dd>No canteiro 1 ela volta ao estágio zero. Sempre regue antes de a barra ficar vermelha, ou use um Tônico.</dd>
@@ -623,10 +623,16 @@ function tend(){
     if(!p||p.locked)return;
     var k=Math.floor(eff(p.last,n)/cfg(i).cool);
     if(k<1)return;
-    p.stage=Math.min(4,p.stage+k);if(p.stage==4)markAdult(p);
+    var j,m,out=[];
+    for(j=0;j<Math.min(k,60);j++){
+      if(!st.plots[i]||st.plots[i].locked)break;
+      if(p.stage<4){p.stage++;if(p.stage==4)markAdult(p)}
+      else{m=adultCycle(i,p);if(m)out.push(m)}
+    }
     p.last=n;p.lost=false;ch=true;
+    if(out.length)say('🧑‍🌾 '+out.slice(-2).join(' '));
   });
-  if(ch)save();
+  if(ch){save();render()}
 }
 /* ---- cruzamento ---- */
 var labA='',labB='',lsig='';
@@ -817,7 +823,7 @@ function renderGardeners(){
     pr.style.cssText='font-size:12px;font-weight:700;color:'+(!first&&coins<cost?'var(--warn)':'var(--mute)');
     pr.textContent=first?'Grátis':'🪙 '+cost;
     box.appendChild(b);box.appendChild(pr);row.appendChild(box);
-    m.textContent='Toque no 🧑‍🌾 de um canteiro para colocar o jardineiro nele (toque de novo para tirar). Essas regas não contam como ciclo.';
+    m.textContent='Toque no 🧑‍🌾 de um canteiro para colocar o jardineiro nele (toque de novo para tirar). As regas dele contam como ciclos e geram colheitas.';
   }
   G.appendChild(row);G.appendChild(m);
 }
