@@ -57,6 +57,12 @@ label.btn input{position:absolute;inset:0;width:100%;height:100%;opacity:0;curso
 #help dl{margin:10px 0 0}#help dt{font-weight:700;margin-top:10px}#help dd{margin:2px 0 0;color:var(--mute);font-size:14px;line-height:1.45}
 #help p{margin:8px 0 0;font-size:14px;line-height:1.45}
 #nfStat{font-size:13px;color:var(--mute);margin-top:8px}
+.top{padding-left:10px;padding-right:10px;gap:4px;flex-wrap:wrap;row-gap:0}
+.top b{font-size:16px}
+.top>span{font-size:13px;white-space:nowrap}
+.top .x{width:26px}
+html,body{overflow-x:hidden}
+@media (max-width:430px){.top .tt{display:none}.top{flex-wrap:nowrap}.top b{margin-right:auto}}
 @keyframes rain{to{background-position:-12px 40px}}
 @keyframes tw{50%{opacity:.2}}
 #status{margin:8px 2px 0;min-height:22px}
@@ -165,7 +171,7 @@ main>section{animation:fin .28s ease-out}
 </style>
 </head>
 <body>
-<header class="top"><b>🌿 Sementeira</b><span id="lvl"></span><span id="rs"></span><span id="sc"></span><button id="hp" class="x" aria-label="Como jogar" style="font-size:18px">❓</button><button id="nf" class="x" aria-label="Avisos" aria-pressed="false" style="font-size:18px" hidden>🔔</button><button id="snd" class="x" aria-label="Som ambiente" aria-pressed="false" style="font-size:18px">🔇</button></header>
+<header class="top"><b>🌿<span class="tt"> Sementeira</span></b><span id="lvl"></span><span id="rs"></span><span id="sc"></span><button id="hp" class="x" aria-label="Como jogar" style="font-size:18px">❓</button><button id="nf" class="x" aria-label="Avisos" aria-pressed="false" style="font-size:18px" hidden>🔔</button><button id="snd" class="x" aria-label="Som ambiente" aria-pressed="false" style="font-size:18px">🔇</button></header>
 <main>
 <section id="t-jardim">
   <div id="sky" class="sky sol"><span id="wi" class="wi">☀️</span><p id="weather"></p></div>
@@ -203,7 +209,7 @@ main>section{animation:fin .28s ease-out}
 </section>
 <section id="t-herb" hidden><h2 style="margin-top:6px">Herbário</h2><div id="herb"></div></section>
 <section id="t-missoes" hidden><h2 style="margin-top:6px">Diárias <span class="qt" id="qdt"></span></h2><div class="card" id="qd"></div><h2>Semanais <span class="qt" id="qwt"></span></h2><div class="card" id="qw"></div><h2>Conquistas</h2><div class="card" id="missions"></div></section>
-<p class="ver">Sementeira 1.3</p>
+<p class="ver">Sementeira 1.4</p>
 </main>
 <nav class="tabs" aria-label="Seções">
 <button data-t="jardim"><i>🪴</i>Jardim</button>
